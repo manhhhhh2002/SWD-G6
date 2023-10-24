@@ -1,7 +1,7 @@
 // Import modules the ES module way
 import express from 'express';
 import session from 'express-session';
-import { userRouter } from './routes/index.js';
+import { userRouter } from './routes/indexRouter.js';
 import cors from 'cors'
 import cookieParser from "cookie-parser";
 
@@ -11,7 +11,7 @@ const app = express();
 // Use express.json() middleware
 app.use(express.json());
 app.use(cors({
-    origin: ['http://localhost:3000'],
+    origin: ['http://localhost:3000', 'https://phone-auth-8bbe2.firebaseapp.com'],
     methods: ['POST', 'GET'],
     credentials: true
 }
