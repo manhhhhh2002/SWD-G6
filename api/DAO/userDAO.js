@@ -1,4 +1,4 @@
-import db from './db.js';
+import db from '../common/db.js';
 
 const salt = 10;
 

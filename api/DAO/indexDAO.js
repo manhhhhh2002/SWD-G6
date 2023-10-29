@@ -1,3 +1,3 @@
-import userDatabase from "./userDAO.js"
+import userDatabase from "./userDao.js"
 
 export { userDatabase}

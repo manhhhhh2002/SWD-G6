@@ -1,7 +1,7 @@
 import bcrypt from "bcrypt";
 import jwt from 'jsonwebtoken';
 import sendEmail from '../utils/email.js';
-import {userDatabase} from '../DAO/indexDAO.js';
+import {userDatabase} from '../dao/indexDao.js';
 
 const register = async (req, res) => {
     const { name, email, password } = req.body;
@@ -64,7 +64,7 @@ function checkPassword(plainPassword, user, res) {
                 return res.json({ Error: 'You need to verify your email address first' });
             } else {
                 const name = user.name;
-                const token = jwt.sign({ name }, 'jwt-secret-key', { expiresIn: '1d' });
+                const token = jwt.sign({ name }, 'jwt-secret-key', { expiresIn: '2h' });
                 res.cookie('token', token);
                 res.cookie('name', name);
                 return res.json({ Status: 'Success' });
