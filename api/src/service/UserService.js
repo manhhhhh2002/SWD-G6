@@ -1,7 +1,7 @@
 import bcrypt from "bcrypt";
 import jwt from 'jsonwebtoken';
-import sendEmail from '../utils/email.js';
-import {userDatabase} from '../dao/indexDao.js';
+import sendEmail from './BaseService.js';
+import {userDatabase} from '../dao/IndexDao.js';
 
 const register = async (req, res) => {
     const { name, email, password } = req.body;
@@ -28,7 +28,8 @@ const register = async (req, res) => {
         const user = { name, email, password: hashedPassword, is_verified: verificationCode };
 
         const insertResult = await userDatabase.insertUser(user);
-        sendEmail(email, verificationCode);
+        sendEmail.sendEmail(email, verificationCode);
+        
 
         return res.json({ Status: "Success" });
     } catch (err) {
@@ -42,7 +43,7 @@ const login = async (req, res) => {
 
     try {
         const userData = await userDatabase.getUserByEmail(email);
-        
+        console.log('user' ,userData);
         if (userData.length > 0) {
             checkPassword(password, userData[0], res);
         } else {
@@ -56,24 +57,33 @@ const login = async (req, res) => {
 
 function checkPassword(plainPassword, user, res) {
     bcrypt.compare(plainPassword.toString(), user.password, (error, response) => {
-        if (error) return res.json({ Error: 'Password compare error!' });
-
-        if (response) {
-            if (user.is_verified != 1) {
-                console.log(user.is_verified);
-                return res.json({ Error: 'You need to verify your email address first' });
-            } else {
-                const name = user.name;
-                const token = jwt.sign({ name }, 'jwt-secret-key', { expiresIn: '2h' });
-                res.cookie('token', token);
-                res.cookie('name', name);
-                return res.json({ Status: 'Success' });
-            }
+      if (error) return res.json({ Error: "Password compare error!" });
+  
+      if (response) {
+        if (user.is_verified != 1) {
+          console.log(user.is_verified);
+          return res.json({
+            Error: "You need to verify your email address first",
+          });
         } else {
-            return res.json({ Error: 'Password not matched' });
+          const name = user.name;
+          const email = user.email;
+          const role = user.setting_name;
+        
+          const token = jwt.sign({ name, email, role }, "jwt-secret-key", {
+            expiresIn: "2h",
+          });
+          console.log(token);
+          res.cookie("token", token);
+          res.cookie("name", name);
+        
+          return res.json({ Status: "Success" });
         }
+      } else {
+        return res.json({ Error: "Password not matched" });
+      }
     });
-}
+  }
 
 const verify = async (req, res) => {
     const code = req.body.code;
